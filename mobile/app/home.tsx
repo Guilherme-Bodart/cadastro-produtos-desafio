@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList, RefreshControl, Image, TouchableOpacity, Sc
 import { Text, Searchbar, FAB, Card, Badge, Button, Portal, Modal, TextInput, SegmentedButtons, IconButton, ActivityIndicator } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { logout, getCurrentUser } from '@/services/auth.services';
-import { getProducts, createProduct, updateProduct, deleteProduct, Product } from '@/services/products.services';
+import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductPhoto, Product } from '@/services/products.services';
 import { useDebounce } from '@/hooks/useDebounce';
 
 export default function HomeScreen() {
@@ -34,6 +34,8 @@ export default function HomeScreen() {
   const [codigo, setCodigo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [status, setStatus] = useState<'ATIVO' | 'INATIVO'>('ATIVO');
+  const [selectedFile, setSelectedFile] = useState<any>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -75,6 +77,8 @@ export default function HomeScreen() {
     setCodigo('');
     setDescricao('');
     setStatus('ATIVO');
+    setSelectedFile(null);
+    setPreviewUrl(null);
     setErrorMsg('');
     setModalVisible(true);
   };
@@ -85,6 +89,8 @@ export default function HomeScreen() {
     setCodigo(product.codigo_produto);
     setDescricao(product.descricao_produto);
     setStatus(product.status);
+    setSelectedFile(null);
+    setPreviewUrl(getImageUrl(product.foto_produto));
     setErrorMsg('');
     setModalVisible(true);
   };
@@ -99,19 +105,25 @@ export default function HomeScreen() {
     setSaving(true);
     setErrorMsg('');
     try {
+      let savedProduct: Product;
       if (editingProduct) {
-        await updateProduct(editingProduct.id, {
+        savedProduct = await updateProduct(editingProduct.id, {
           codigo_produto: codigo,
           descricao_produto: descricao,
           status,
         });
       } else {
-        await createProduct({
+        savedProduct = await createProduct({
           codigo_produto: codigo,
           descricao_produto: descricao,
           status,
         });
       }
+
+      if (selectedFile && savedProduct?.id) {
+        await uploadProductPhoto(savedProduct.id, selectedFile);
+      }
+
       setModalVisible(false);
       loadProducts();
     } catch (e: any) {
@@ -369,16 +381,61 @@ export default function HomeScreen() {
             style={styles.modalInput}
           />
 
-          <Text style={styles.modalLabel}>Status:</Text>
-          <SegmentedButtons
-            value={status}
-            onValueChange={(val) => setStatus(val as 'ATIVO' | 'INATIVO')}
-            buttons={[
-              { value: 'ATIVO', label: 'Ativo' },
-              { value: 'INATIVO', label: 'Inativo' },
-            ]}
-            style={styles.modalSegmented}
-          />
+          {/* Upload de Foto no Modal */}
+          <Text style={styles.modalLabel}>Foto do Produto (Opcional):</Text>
+          <View style={styles.photoUploadBox}>
+            {previewUrl ? (
+              <View style={styles.previewWrapper}>
+                <Image source={{ uri: previewUrl }} style={styles.previewImg} />
+                <TouchableOpacity
+                  style={styles.removePhotoBadge}
+                  onPress={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl(null);
+                  }}
+                >
+                  <Text style={styles.removePhotoText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.placeholderBox}>
+                <Text style={{ fontSize: 24 }}>🖼️</Text>
+              </View>
+            )}
+
+            <View style={styles.uploadControls}>
+              {Platform.OS === 'web' ? (
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="mobile-photo-picker"
+                  style={{ display: 'none' }}
+                  onChange={(e: any) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setSelectedFile(file);
+                      setPreviewUrl(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+              ) : null}
+
+              <TouchableOpacity
+                style={styles.selectPhotoBtn}
+                onPress={() => {
+                  if (Platform.OS === 'web' && typeof document !== 'undefined') {
+                    const el = document.getElementById('mobile-photo-picker');
+                    if (el) el.click();
+                  }
+                }}
+              >
+                <Text style={styles.selectPhotoText}>
+                  {selectedFile ? '📷 Trocar Imagem' : '📷 Selecionar Imagem'}
+                </Text>
+              </TouchableOpacity>
+              <Text style={styles.photoHintText}>PNG, JPG ou WEBP de até 5MB</Text>
+            </View>
+          </View>
 
           <View style={styles.modalActions}>
             <Button
@@ -565,4 +622,52 @@ const styles = StyleSheet.create({
   deleteModalContainer: { backgroundColor: 'white', padding: 24, margin: 20, borderRadius: 20 },
   deleteTitle: { fontWeight: 'bold', color: '#E11D48', marginBottom: 12 },
   deleteText: { color: '#475569', fontSize: 14, marginBottom: 20, lineHeight: 20 },
+  photoUploadBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#CBD5E1',
+    borderRadius: 14,
+    backgroundColor: '#F8FAFC',
+    marginBottom: 16,
+    gap: 12,
+  },
+  previewWrapper: { width: 72, height: 72, borderRadius: 12, overflow: 'hidden', position: 'relative' },
+  previewImg: { width: '100%', height: '100%' },
+  removePhotoBadge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    backgroundColor: '#E11D48',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removePhotoText: { color: '#FFFFFF', fontSize: 10, fontWeight: 'bold' },
+  placeholderBox: {
+    width: 72,
+    height: 72,
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  uploadControls: { flex: 1, gap: 4 },
+  selectPhotoBtn: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+  },
+  selectPhotoText: { fontSize: 12, fontWeight: '600', color: '#334155' },
+  photoHintText: { fontSize: 11, color: '#94A3B8' },
 });
