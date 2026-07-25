@@ -240,7 +240,7 @@ export default function HomePage() {
         />
       </main>
 
-      {/* Modal de Produto com apenas 4 props */}
+      {/* Modal de Produto*/}
       <ProductModal
         isOpen={modalOpen}
         editingProduct={editingProduct}
