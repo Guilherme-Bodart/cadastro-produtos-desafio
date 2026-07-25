@@ -13,6 +13,8 @@ model Product {
   descricao_produto String
   status            String   @default("ATIVO") // ATIVO | INATIVO
   foto_produto      String?
+  criado_por        String?
+  alterado_por      String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
