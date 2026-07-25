@@ -1,24 +1,28 @@
 -- CreateTable
 CREATE TABLE "produtos" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "codigo_produto" TEXT NOT NULL,
     "descricao_produto" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'ATIVO',
     "foto_produto" TEXT,
     "criado_por" TEXT,
     "alterado_por" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "produtos_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "usuarios" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "usuarios_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
