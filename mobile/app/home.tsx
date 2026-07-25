@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Image, TouchableOpacity, ScrollView, Platform } from 'react-native';
-import { Text, Searchbar, FAB, Card, Badge, Button, Portal, Modal, TextInput, SegmentedButtons, IconButton, ActivityIndicator } from 'react-native-paper';
+import { Text, Searchbar, FAB, Card, Badge, Button, Portal, Modal, TextInput, SegmentedButtons, IconButton, ActivityIndicator, Menu } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { logout, getCurrentUser } from '@/services/auth.services';
 import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductPhoto, Product } from '@/services/products.services';
@@ -9,6 +9,9 @@ import { useDebounce } from '@/hooks/useDebounce';
 export default function HomeScreen() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<any>(null);
+
+  // Dropdown menu state
+  const [menuVisible, setMenuVisible] = useState(false);
 
   // Data states
   const [products, setProducts] = useState<Product[]>([]);
@@ -230,7 +233,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Top Header (Responsive Mobile Layout) */}
+      {/* Top Header with User Profile Dropdown Menu */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.headerBadge}>
@@ -244,23 +247,39 @@ export default function HomeScreen() {
 
         <View style={styles.headerRight}>
           {currentUser?.name ? (
-            <View style={styles.userBadge}>
-              <View style={styles.userDot} />
-              <Text style={styles.userText} numberOfLines={1} ellipsizeMode="tail">
-                {currentUser.name.split(' ')[0]}
-              </Text>
-            </View>
-          ) : null}
-
-          <TouchableOpacity
-            style={styles.logoutBtn}
-            onPress={handleLogout}
-            activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Text style={styles.logoutIcon}>↳</Text>
-            <Text style={styles.logoutText}>Sair</Text>
-          </TouchableOpacity>
+            <Menu
+              visible={menuVisible}
+              onDismiss={() => setMenuVisible(false)}
+              anchor={
+                <TouchableOpacity
+                  style={styles.userBadge}
+                  onPress={() => setMenuVisible(true)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.userDot} />
+                  <Text style={styles.userText} numberOfLines={1}>
+                    Olá, <Text style={styles.userName}>{currentUser.name}</Text>
+                  </Text>
+                  <Text style={styles.dropdownChevron}> ▾</Text>
+                </TouchableOpacity>
+              }
+              contentStyle={styles.menuContent}
+            >
+              <Menu.Item
+                onPress={() => {
+                  setMenuVisible(false);
+                  handleLogout();
+                }}
+                title="↳ Sair da Conta"
+                titleStyle={styles.menuLogoutTitle}
+              />
+            </Menu>
+          ) : (
+            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.7}>
+              <Text style={styles.logoutIcon}>↳</Text>
+              <Text style={styles.logoutText}>Sair</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -538,40 +557,52 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingTop: Platform.OS === 'ios' ? 48 : 14,
-    paddingBottom: 10,
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 48 : 16,
+    paddingBottom: 12,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, marginRight: 6 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, marginRight: 8 },
   headerBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     backgroundColor: '#4F46E5',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 2,
+    elevation: 3,
   },
-  headerIcon: { fontSize: 18 },
+  headerIcon: { fontSize: 20 },
   headerTitleGroup: { flex: 1 },
-  headerTitle: { fontWeight: 'bold', color: '#0F172A', fontSize: 14, lineHeight: 18 },
+  headerTitle: { fontWeight: 'bold', color: '#0F172A', fontSize: 15, lineHeight: 18 },
   headerSubtitle: { color: '#64748B', fontSize: 11 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  headerRight: { flexDirection: 'row', alignItems: 'center' },
   userBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
     backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 8,
-    maxWidth: 90,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
-  userDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' },
-  userText: { fontSize: 11, fontWeight: 'bold', color: '#334155' },
+  userDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#10B981' },
+  userText: { fontSize: 12, color: '#475569' },
+  userName: { fontWeight: 'bold', color: '#0F172A' },
+  dropdownChevron: { fontSize: 11, color: '#64748B', fontWeight: 'bold' },
+  menuContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginTop: 44,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  menuLogoutTitle: { color: '#E11D48', fontWeight: 'bold', fontSize: 13 },
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
