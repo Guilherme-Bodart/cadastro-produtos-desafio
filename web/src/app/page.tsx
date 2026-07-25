@@ -36,15 +36,6 @@ export default function HomePage() {
   // Modal de confirmação de exclusão
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Debounce de 300ms na barra de pesquisa
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [search]);
-
   // Carregar dados iniciais e checar autenticação antes de abrir a tela
   useEffect(() => {
     let isMounted = true;
@@ -161,7 +152,10 @@ export default function HomePage() {
 
   if (initializing) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+      <div
+        suppressHydrationWarning
+        className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4"
+      >
         <div className="flex flex-col items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg animate-pulse">
             <Package className="w-7 h-7" />
@@ -176,7 +170,10 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div
+      suppressHydrationWarning
+      className="min-h-screen bg-slate-50 flex flex-col"
+    >
       <Navbar
         isAuthenticated={isAuthenticated}
         currentUser={currentUser}
