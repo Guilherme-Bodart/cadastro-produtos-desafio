@@ -38,4 +38,4 @@ RUN mkdir -p uploads
 
 EXPOSE 3333
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
+CMD ["sh", "-c", "npx prisma db push && node dist/server.js"]
