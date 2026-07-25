@@ -1,6 +1,9 @@
 # Estágio 1: Build da API e Prisma Client
 FROM node:20-alpine AS builder
 
+# Instalar pacotes de compatibilidade do OpenSSL para Alpine Linux
+RUN apk add --no-cache openssl libc6-compat
+
 WORKDIR /app
 
 COPY package*.json ./
@@ -14,6 +17,8 @@ RUN npm run build
 
 # Estágio 2: Imagem leve de Produção
 FROM node:20-alpine AS runner
+
+RUN apk add --no-cache openssl libc6-compat
 
 WORKDIR /app
 
