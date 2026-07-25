@@ -89,7 +89,7 @@ export default function HomeScreen() {
   // Helper for product image URL
   const getImageUrl = (foto?: string | null) => {
     if (!foto) return null;
-    if (foto.startsWith('http')) return foto;
+    if (foto.startsWith('data:') || foto.startsWith('http')) return foto;
     const baseUrl = process.env.EXPO_PUBLIC_API_URL || 'https://cadastro-produtos-desafio.onrender.com';
     return `${baseUrl}/uploads/${foto}`;
   };

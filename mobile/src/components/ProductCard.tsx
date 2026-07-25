@@ -27,7 +27,11 @@ export function ProductCard({ product, getImageUrl, onEdit, onDelete }: ProductC
         {/* Product Image */}
         <View style={styles.imageContainer}>
           {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={styles.productImage} />
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.productImage}
+              resizeMode="cover"
+            />
           ) : (
             <View style={styles.placeholderImage}>
               <Text style={styles.placeholderIcon}>🖼️</Text>
