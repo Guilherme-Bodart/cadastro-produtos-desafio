@@ -12,8 +12,7 @@
       "backgroundColor": "#ffffff"
     },
     "android": {
-      "package": "com.cadastro.produtos",
-      "versionCode": 1
+      "package": "com.cadastro.produtos"
     },
     "scheme": "cadastro-produtos",
     "web": {
