@@ -40,9 +40,12 @@ export function ProductModal({
         setCodigoProduto(editingProduct.codigo_produto);
         setDescricaoProduto(editingProduct.descricao_produto);
         setStatus(editingProduct.status);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
         setPreviewUrl(
           editingProduct.foto_produto
-            ? `http://localhost:3333/uploads/${editingProduct.foto_produto}`
+            ? editingProduct.foto_produto.startsWith("http")
+              ? editingProduct.foto_produto
+              : `${apiUrl}/uploads/${editingProduct.foto_produto}`
             : null
         );
       } else {

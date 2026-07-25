@@ -82,7 +82,11 @@ export function ProductTable({
                       <td className="px-6 py-3.5">
                         {product.foto_produto ? (
                           <img
-                            src={`http://localhost:3333/uploads/${product.foto_produto}`}
+                            src={
+                              product.foto_produto.startsWith("http")
+                                ? product.foto_produto
+                                : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333"}/uploads/${product.foto_produto}`
+                            }
                             alt={product.descricao_produto}
                             className="w-16 h-16 object-cover rounded-xl border border-slate-200/90 shadow-xs"
                             onError={(e) => {
