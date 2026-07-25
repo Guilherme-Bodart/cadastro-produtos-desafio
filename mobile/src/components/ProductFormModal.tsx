@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity, Platform } from 'react-native';
 import { Portal, Modal, TextInput, SegmentedButtons, IconButton, Button } from 'react-native-paper';
+import * as ImagePicker from 'expo-image-picker';
 import { Product } from '@/services/products.services';
 
 interface ProductFormModalProps {
@@ -40,6 +41,48 @@ export function ProductFormModal({
   onClose,
   onSave,
 }: ProductFormModalProps) {
+
+  const handlePickImage = async () => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      const el = document.getElementById('mobile-photo-picker');
+      if (el) el.click();
+      return;
+    }
+
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (!permissionResult.granted) {
+        alert('É necessária permissão de acesso à galeria para enviar fotos do produto.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+      });
+
+      if (!result.canceled && result.assets?.[0]) {
+        const asset = result.assets[0];
+        setPreviewUrl(asset.uri);
+
+        const filename = asset.uri.split('/').pop() || 'photo.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+        setSelectedFile({
+          uri: asset.uri,
+          name: filename,
+          type: type,
+        });
+      }
+    } catch (e) {
+      console.warn('Erro ao selecionar foto:', e);
+    }
+  };
+
   return (
     <Portal>
       <Modal
@@ -123,12 +166,8 @@ export function ProductFormModal({
 
             <TouchableOpacity
               style={styles.selectPhotoBtn}
-              onPress={() => {
-                if (Platform.OS === 'web' && typeof document !== 'undefined') {
-                  const el = document.getElementById('mobile-photo-picker');
-                  if (el) el.click();
-                }
-              }}
+              onPress={handlePickImage}
+              activeOpacity={0.7}
             >
               <Text style={styles.selectPhotoText}>
                 {selectedFile ? '📷 Trocar Imagem' : '📷 Selecionar Imagem'}

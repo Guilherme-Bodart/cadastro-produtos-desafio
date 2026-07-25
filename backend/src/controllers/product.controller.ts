@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import fs from "fs";
 import {
   CreateProductService,
   ListProductsService,
@@ -133,10 +134,25 @@ export const uploadFoto = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Produto não encontrado." });
     }
 
-    const updatedProduct = await UpdateProductFotoService(
-      id,
-      req.file.filename,
-    );
+    // Convert uploaded file to Base64 Data URI to store PERMANENTLY in Neon DB PostgreSQL database.
+    // Render free tier instances wipe the local /uploads directory whenever Render restarts or sleeps.
+    // Base64 Data URIs stored inside Neon DB persist forever!
+    let photoData: string;
+    if (req.file.buffer) {
+      const mimeType = req.file.mimetype || "image/png";
+      photoData = `data:${mimeType};base64,${req.file.buffer.toString("base64")}`;
+    } else if (req.file.path && fs.existsSync(req.file.path)) {
+      const fileBuffer = fs.readFileSync(req.file.path);
+      const mimeType = req.file.mimetype || "image/png";
+      photoData = `data:${mimeType};base64,${fileBuffer.toString("base64")}`;
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch {}
+    } else {
+      photoData = req.file.filename;
+    }
+
+    const updatedProduct = await UpdateProductFotoService(id, photoData);
 
     return res.json(updatedProduct);
   } catch (error) {
