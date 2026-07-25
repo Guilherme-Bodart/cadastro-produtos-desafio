@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Image, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { Text, Searchbar, FAB, Card, Badge, Button, Portal, Modal, TextInput, SegmentedButtons, IconButton, ActivityIndicator } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import { logout } from '@/services/auth.services';
+import { logout, getCurrentUser } from '@/services/auth.services';
 import { getProducts, createProduct, updateProduct, deleteProduct, Product } from '@/services/products.services';
 import { useDebounce } from '@/hooks/useDebounce';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   // Data states
   const [products, setProducts] = useState<Product[]>([]);
@@ -16,6 +17,16 @@ export default function HomeScreen() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 400);
   const [statusFilter, setStatusFilter] = useState('ALL');
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const user = await getCurrentUser();
+        setCurrentUser(user);
+      } catch {}
+    }
+    loadUser();
+  }, []);
 
   // Modal create/edit states
   const [modalVisible, setModalVisible] = useState(false);
@@ -202,18 +213,33 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Top Header */}
+      {/* Top Header matching Web Navbar 1:1 */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.headerBadge}>
-            <Text style={{ fontSize: 18 }}>📦</Text>
+            <Text style={styles.headerIcon}>📦</Text>
           </View>
           <View>
-            <Text variant="titleLarge" style={styles.headerTitle}>Catálogo de Produtos</Text>
-            <Text variant="bodySmall" style={styles.headerSubtitle}>Painel Móvel de Gestão</Text>
+            <Text style={styles.headerTitle}>Catálogo de Produtos</Text>
+            <Text style={styles.headerSubtitle}>Gerenciador de Inventário</Text>
           </View>
         </View>
-        <IconButton icon="logout" iconColor="#EF4444" size={22} onPress={handleLogout} />
+
+        <View style={styles.headerRight}>
+          {currentUser?.name ? (
+            <View style={styles.userBadge}>
+              <View style={styles.userDot} />
+              <Text style={styles.userText} numberOfLines={1}>
+                Olá, <Text style={styles.userName}>{currentUser.name}</Text>
+              </Text>
+            </View>
+          ) : null}
+
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.7}>
+            <Text style={styles.logoutIcon}>↳</Text>
+            <Text style={styles.logoutText}>Sair</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Dashboard Metrics Header */}
@@ -424,24 +450,56 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 52,
-    paddingBottom: 16,
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 48 : 16,
+    paddingBottom: 12,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   headerBadge: {
-    width: 42,
-    height: 42,
+    width: 40,
+    height: 40,
     borderRadius: 12,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#4F46E5',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  headerTitle: { fontWeight: 'bold', color: '#0F172A', fontSize: 18 },
+  headerIcon: { fontSize: 20 },
+  headerTitle: { fontWeight: 'bold', color: '#0F172A', fontSize: 16, lineHeight: 20 },
   headerSubtitle: { color: '#64748B', fontSize: 12 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  userBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  userDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' },
+  userText: { fontSize: 12, color: '#475569' },
+  userName: { fontWeight: 'bold', color: '#0F172A' },
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  logoutIcon: { fontSize: 13, color: '#475569' },
+  logoutText: { fontSize: 12, fontWeight: '600', color: '#475569' },
   statsContainer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
