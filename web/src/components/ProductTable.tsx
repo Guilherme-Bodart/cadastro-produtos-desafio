@@ -83,7 +83,7 @@ export function ProductTable({
                         {product.foto_produto ? (
                           <img
                             src={
-                              product.foto_produto.startsWith("http")
+                              product.foto_produto.startsWith("http") || product.foto_produto.startsWith("data:")
                                 ? product.foto_produto
                                 : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333"}/uploads/${product.foto_produto}`
                             }

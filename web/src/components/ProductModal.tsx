@@ -43,7 +43,7 @@ export function ProductModal({
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
         setPreviewUrl(
           editingProduct.foto_produto
-            ? editingProduct.foto_produto.startsWith("http")
+            ? editingProduct.foto_produto.startsWith("http") || editingProduct.foto_produto.startsWith("data:")
               ? editingProduct.foto_produto
               : `${apiUrl}/uploads/${editingProduct.foto_produto}`
             : null
