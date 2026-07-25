@@ -10,12 +10,12 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
-    "@expo/vector-icons": "^13.0.0",
+    "@expo/vector-icons": "^14.0.0",
     "@types/react": "~18.2.45",
     "axios": "^1.7.2",
     "expo": "~50.0.0",
-    "expo-router": "^3.4.0",
-    "expo-secure-store": "~12.2.0",
+    "expo-router": "~3.4.10",
+    "expo-secure-store": "~12.8.1",
     "expo-status-bar": "~1.11.0",
     "lucide-react-native": "^0.306.0",
     "react": "18.2.0",
