@@ -230,15 +230,15 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Top Header matching Web Navbar 1:1 */}
+      {/* Top Header (Responsive Mobile Layout) */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.headerBadge}>
             <Text style={styles.headerIcon}>📦</Text>
           </View>
-          <View>
-            <Text style={styles.headerTitle}>Catálogo de Produtos</Text>
-            <Text style={styles.headerSubtitle}>Gerenciador de Inventário</Text>
+          <View style={styles.headerTitleGroup}>
+            <Text style={styles.headerTitle} numberOfLines={1}>Catálogo de Produtos</Text>
+            <Text style={styles.headerSubtitle} numberOfLines={1}>Gerenciador de Inventário</Text>
           </View>
         </View>
 
@@ -246,13 +246,18 @@ export default function HomeScreen() {
           {currentUser?.name ? (
             <View style={styles.userBadge}>
               <View style={styles.userDot} />
-              <Text style={styles.userText} numberOfLines={1}>
-                Olá, <Text style={styles.userName}>{currentUser.name}</Text>
+              <Text style={styles.userText} numberOfLines={1} ellipsizeMode="tail">
+                {currentUser.name.split(' ')[0]}
               </Text>
             </View>
           ) : null}
 
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.logoutBtn}
+            onPress={handleLogout}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
             <Text style={styles.logoutIcon}>↳</Text>
             <Text style={styles.logoutText}>Sair</Text>
           </TouchableOpacity>
@@ -533,56 +538,53 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 48 : 16,
-    paddingBottom: 12,
+    paddingHorizontal: 12,
+    paddingTop: Platform.OS === 'ios' ? 48 : 14,
+    paddingBottom: 10,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, marginRight: 6 },
   headerBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     backgroundColor: '#4F46E5',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
-  headerIcon: { fontSize: 20 },
-  headerTitle: { fontWeight: 'bold', color: '#0F172A', fontSize: 16, lineHeight: 20 },
-  headerSubtitle: { color: '#64748B', fontSize: 12 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerIcon: { fontSize: 18 },
+  headerTitleGroup: { flex: 1 },
+  headerTitle: { fontWeight: 'bold', color: '#0F172A', fontSize: 14, lineHeight: 18 },
+  headerSubtitle: { color: '#64748B', fontSize: 11 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   userBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
     backgroundColor: '#F1F5F9',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
     borderRadius: 8,
+    maxWidth: 90,
   },
   userDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' },
-  userText: { fontSize: 12, color: '#475569' },
-  userName: { fontWeight: 'bold', color: '#0F172A' },
+  userText: { fontSize: 11, fontWeight: 'bold', color: '#334155' },
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderColor: '#FECDD3',
+    backgroundColor: '#FFF5F5',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
     borderRadius: 8,
   },
-  logoutIcon: { fontSize: 13, color: '#475569' },
-  logoutText: { fontSize: 12, fontWeight: '600', color: '#475569' },
+  logoutIcon: { fontSize: 13, color: '#E11D48' },
+  logoutText: { fontSize: 11, fontWeight: 'bold', color: '#E11D48' },
   statsContainer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
