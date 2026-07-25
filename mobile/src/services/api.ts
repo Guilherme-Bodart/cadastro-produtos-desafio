@@ -2,7 +2,7 @@ import axios from 'axios';
 import { storage } from '@/lib/storage';
 
 const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.15.16:3333',
+  baseURL: process.env.EXPO_PUBLIC_API_URL || 'https://cadastro-produtos-desafio.onrender.com',
 });
 
 // Request interceptor – inject JWT from storage
