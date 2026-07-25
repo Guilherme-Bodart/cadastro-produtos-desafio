@@ -166,7 +166,14 @@ export default function HomeScreen() {
     const isActive = item.status === 'ATIVO';
 
     return (
-      <Card style={[styles.productCard, !isActive && styles.inactiveCard]} mode="elevated">
+      <Card
+        style={[
+          styles.productCard,
+          { borderLeftWidth: 5, borderLeftColor: isActive ? '#10B981' : '#CBD5E1' },
+          !isActive && styles.inactiveCard,
+        ]}
+        mode="elevated"
+      >
         <Card.Content style={styles.cardContent}>
           {/* Product Image */}
           <View style={styles.imageContainer}>
@@ -181,42 +188,40 @@ export default function HomeScreen() {
 
           {/* Product Details */}
           <View style={styles.infoContainer}>
-            <View style={styles.headerRow}>
-              <Text variant="labelMedium" style={styles.codeText}>
-                CÓD: <Text style={styles.codeValue}>{item.codigo_produto}</Text>
-              </Text>
-              <View
-                style={[
-                  styles.statusBadge,
-                  { backgroundColor: isActive ? '#DCFCE7' : '#F1F5F9' },
-                ]}
-              >
-                <Text style={{ color: isActive ? '#15803D' : '#64748B', fontWeight: 'bold', fontSize: 10 }}>
-                  {isActive ? '● ATIVO' : '○ INATIVO'}
-                </Text>
-              </View>
-            </View>
-
-            <Text variant="titleMedium" style={styles.descriptionText} numberOfLines={2}>
+            <Text style={styles.codeValue}>{item.codigo_produto}</Text>
+            <Text style={styles.descriptionText} numberOfLines={1}>
               {item.descricao_produto}
             </Text>
 
-            {/* Action Buttons */}
-            <View style={styles.actionRow}>
-              <TouchableOpacity
-                style={[styles.actionBtn, styles.editBtn]}
-                onPress={() => handleOpenEditModal(item)}
-              >
-                <Text style={styles.editBtnText}>✏️ Editar</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionBtn, styles.deleteBtn]}
-                onPress={() => setDeletingProduct(item)}
-              >
-                <Text style={styles.deleteBtnText}>🗑️ Excluir</Text>
-              </TouchableOpacity>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: isActive ? '#DCFCE7' : '#F1F5F9' },
+              ]}
+            >
+              <Text style={{ color: isActive ? '#15803D' : '#64748B', fontWeight: 'bold', fontSize: 10 }}>
+                {isActive ? '● ATIVO' : '● INATIVO'}
+              </Text>
             </View>
+          </View>
+
+          {/* Square Action Icon Buttons (Matching Web) */}
+          <View style={styles.actionSquareGroup}>
+            <TouchableOpacity
+              style={styles.squareIconBtn}
+              onPress={() => handleOpenEditModal(item)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.squareIconText}>✏️</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.squareIconBtn, styles.squareDeleteBtn]}
+              onPress={() => setDeletingProduct(item)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.squareIconText}>🗑️</Text>
+            </TouchableOpacity>
           </View>
         </Card.Content>
       </Card>
@@ -278,29 +283,50 @@ export default function HomeScreen() {
         </Card>
       </View>
 
-      {/* Search Bar & Filter Tabs */}
+      {/* Search Bar & Filter Card Container (Matching Web) */}
       <View style={styles.filterSection}>
-        <Searchbar
-          placeholder="Buscar por código ou descrição..."
-          onChangeText={setSearch}
-          value={search}
-          style={styles.searchbar}
-          inputStyle={styles.searchInput}
-          elevation={0}
-          icon="magnify"
-          clearIcon="close"
-        />
+        <Card style={styles.filterCard} mode="elevated">
+          <Card.Content style={styles.filterCardContent}>
+            <Searchbar
+              placeholder="Buscar por código ou descrição..."
+              onChangeText={setSearch}
+              value={search}
+              style={styles.searchbar}
+              inputStyle={styles.searchInput}
+              elevation={0}
+              icon="magnify"
+              clearIcon="close"
+            />
 
-        <SegmentedButtons
-          value={statusFilter}
-          onValueChange={setStatusFilter}
-          buttons={[
-            { value: 'ALL', label: 'Todos' },
-            { value: 'ATIVO', label: 'Ativos' },
-            { value: 'INATIVO', label: 'Inativos' },
-          ]}
-          style={styles.segmentedBtn}
-        />
+            <SegmentedButtons
+              value={statusFilter}
+              onValueChange={setStatusFilter}
+              buttons={[
+                { value: 'ALL', label: 'Todos' },
+                { value: 'ATIVO', label: 'Ativos' },
+                { value: 'INATIVO', label: 'Inativos' },
+              ]}
+              style={styles.segmentedBtn}
+            />
+          </Card.Content>
+        </Card>
+      </View>
+
+      {/* Catalog Table Header Card (Matching Web 1:1) */}
+      <View style={styles.catalogHeaderCard}>
+        <View>
+          <Text style={styles.catalogTitle}>Lista de Produtos</Text>
+          <Text style={styles.catalogSubtitle}>
+            Exibindo {products.length} registro(s) no catálogo
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={styles.webAddBtn}
+          onPress={handleOpenCreateModal}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.webAddBtnText}>+ Adicionar</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Product List */}
@@ -573,15 +599,41 @@ const styles = StyleSheet.create({
   statContent: { paddingVertical: 12, paddingHorizontal: 10 },
   statLabel: { fontSize: 11, color: '#64748B', fontWeight: '600', textTransform: 'uppercase' },
   statValue: { fontSize: 20, fontWeight: 'bold', color: '#0F172A', marginTop: 2 },
-  filterSection: { padding: 16, gap: 12 },
-  searchbar: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#E2E8F0' },
-  searchInput: { fontSize: 14 },
+  filterSection: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6 },
+  filterCard: { backgroundColor: '#FFFFFF', borderRadius: 16, borderColor: '#E2E8F0', borderWidth: 1, elevation: 1 },
+  filterCardContent: { padding: 12, gap: 10 },
+  searchbar: { backgroundColor: '#F8FAFC', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0' },
+  searchInput: { fontSize: 13 },
   segmentedBtn: { marginTop: 0 },
+  catalogHeaderCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginHorizontal: 16,
+    marginVertical: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    elevation: 1,
+  },
+  catalogTitle: { fontWeight: 'bold', fontSize: 16, color: '#0F172A' },
+  catalogSubtitle: { fontSize: 12, color: '#64748B' },
+  webAddBtn: {
+    backgroundColor: '#4F46E5',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+    elevation: 2,
+  },
+  webAddBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 13 },
   listContainer: { paddingHorizontal: 16, paddingBottom: 90 },
-  productCard: { marginBottom: 12, backgroundColor: '#FFFFFF', borderRadius: 16, elevation: 2 },
+  productCard: { marginBottom: 10, backgroundColor: '#FFFFFF', borderRadius: 16, elevation: 1 },
   inactiveCard: { opacity: 0.75, backgroundColor: '#F8FAFC' },
-  cardContent: { flexDirection: 'row', padding: 14, gap: 14 },
-  imageContainer: { width: 68, height: 68, borderRadius: 14, overflow: 'hidden', backgroundColor: '#F1F5F9' },
+  cardContent: { flexDirection: 'row', padding: 12, alignItems: 'center', gap: 12 },
+  imageContainer: { width: 60, height: 60, borderRadius: 12, overflow: 'hidden', backgroundColor: '#F1F5F9', borderWidth: 1, borderColor: '#E2E8F0' },
   productImage: { width: '100%', height: '100%' },
   placeholderImage: {
     width: '100%',
@@ -590,19 +642,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  placeholderIcon: { fontSize: 24 },
-  infoContainer: { flex: 1 },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  codeText: { color: '#64748B', fontSize: 12 },
-  codeValue: { fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace', fontWeight: 'bold', color: '#0F172A' },
-  statusBadge: { paddingHorizontal: 8, height: 22, borderRadius: 12, justifyContent: 'center' },
-  descriptionText: { color: '#1E293B', fontWeight: '600', fontSize: 14, marginBottom: 10 },
-  actionRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
-  actionBtn: { paddingVertical: 5, paddingHorizontal: 10, borderRadius: 8, borderWidth: 1 },
-  editBtn: { borderColor: '#CBD5E1', backgroundColor: '#F8FAFC' },
-  editBtnText: { fontSize: 12, color: '#334155', fontWeight: '600' },
-  deleteBtn: { borderColor: '#FECDD3', backgroundColor: '#FEF2F2' },
-  deleteBtnText: { fontSize: 12, color: '#E11D48', fontWeight: '600' },
+  placeholderIcon: { fontSize: 22 },
+  infoContainer: { flex: 1, justifyContent: 'center', gap: 2 },
+  codeValue: { fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace', fontWeight: 'bold', color: '#0F172A', fontSize: 13 },
+  descriptionText: { color: '#1E293B', fontWeight: 'bold', fontSize: 14 },
+  statusBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, alignSelf: 'flex-start', marginTop: 4 },
+  actionSquareGroup: { flexDirection: 'row', gap: 6, alignItems: 'center' },
+  squareIconBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  squareDeleteBtn: { borderColor: '#FECDD3', backgroundColor: '#FFF5F5' },
+  squareIconText: { fontSize: 14 },
   loadingContainer: { padding: 40, alignItems: 'center', gap: 12 },
   loadingText: { color: '#64748B', fontSize: 14, fontWeight: '500' },
   emptyContainer: { padding: 40, alignItems: 'center', gap: 8 },
